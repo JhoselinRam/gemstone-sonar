@@ -1,0 +1,10 @@
+node_modules
+dist
+out
+*.log*
+package-lock.json
+.env
+.env.*
+.vscode
+**/.history
+.directory
