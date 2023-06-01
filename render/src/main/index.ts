@@ -36,6 +36,12 @@ function createWindow(): void {
   }
 }
 
+function serialData(data: Buffer): void {
+  data.forEach((_, i) => {
+    console.log(data.readInt8(i))
+  })
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -55,6 +61,13 @@ app.whenReady().then(() => {
   SerialPort.list().then((list) => {
     console.dir(list)
   })
+
+  const port = new SerialPort({
+    path: 'COM4',
+    baudRate: 115200
+  })
+
+  port.on('data', serialData)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

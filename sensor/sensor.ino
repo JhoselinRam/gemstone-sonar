@@ -1,7 +1,7 @@
 #include "libraries/gButton/src/gButton.h";
 #include "libraries/gSonar/src/HC_SR04.h";
 
-uint8_t buffer[6] = {'$', '#', 0, 0, '\r', '\n'};
+uint8_t buffer[6] = {'$', '#', 0, 0, '&', '?'};
 gButton button(3);
 HC_SR04 sonar(6,7);
 
