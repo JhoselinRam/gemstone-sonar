@@ -73,5 +73,5 @@ class gButton{
 		bool _get(uint8_t);               //Utility function, used to get a specific state property
 
 };
-
+#include "gButton.cpp"
 #endif
