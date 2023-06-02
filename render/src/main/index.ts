@@ -1,10 +1,12 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { SerialPort } from 'serialport'
 
 //----------- Create Window ----------------
+
+let port: SerialPort
 
 // Create the browser window.
 function createWindow(): void {
@@ -43,6 +45,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   ipcMain.handle('serial:getPorts', getSerialPorts)
+  ipcMain.handle('serial:open', openPort)
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -87,8 +90,13 @@ async function getSerialPorts(): Promise<string[]> {
 //------------------------------------------
 //-------------- Open Port -----------------
 
-async function openPort(path: string): Promise<string> {
-  const port = new SerialPort({ path, baudRate: 115200 })
+async function openPort(e: IpcMainInvokeEvent, path: string): Promise<string> {
+  port = new SerialPort({ path, baudRate: 115200 })
+  let status = 'ok'
+
+  port.open(() => (status = 'error'))
+
+  return status
 }
 
 //------------------------------------------
