@@ -6,6 +6,11 @@ declare global {
     api: {
       serial: {
         getPorts: () => Promise<string[]>
+        openPort: (port: string) => Promise<string>
+        status: (
+          callback: (_: Electron.IpcRendererEvent, status: string) => void
+        ) => Electron.IpcRenderer
+        start: () => void
       }
     }
   }

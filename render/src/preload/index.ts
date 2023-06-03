@@ -4,7 +4,12 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   serial: {
-    getPorts: (): Promise<string[]> => ipcRenderer.invoke('serial:getPorts')
+    getPorts: (): Promise<string[]> => ipcRenderer.invoke('serial:getPorts'),
+    openPort: (port: string): void => ipcRenderer.send('serial:open', port),
+    status: (
+      callback: (_: Electron.IpcRendererEvent, status: string) => void
+    ): Electron.IpcRenderer => ipcRenderer.on('serial:status', callback),
+    start: (): void => ipcRenderer.send('serial:start')
   }
 }
 

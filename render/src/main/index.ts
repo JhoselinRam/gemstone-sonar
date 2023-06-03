@@ -7,10 +7,11 @@ import { SerialPort } from 'serialport'
 //----------- Create Window ----------------
 
 let port: SerialPort
+let mainWindow: BrowserWindow
 
 // Create the browser window.
 function createWindow(): void {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -45,7 +46,8 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   ipcMain.handle('serial:getPorts', getSerialPorts)
-  ipcMain.handle('serial:open', openPort)
+  ipcMain.on('serial:open', openPort)
+  ipcMain.on('serial:start', serialStart)
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -83,20 +85,29 @@ app.on('window-all-closed', () => {
 async function getSerialPorts(): Promise<string[]> {
   const pathInfo = await SerialPort.list()
   const pathNames = pathInfo.map((port) => port.path)
-  console.log(pathNames)
   return pathNames
 }
 
 //------------------------------------------
 //-------------- Open Port -----------------
 
-async function openPort(e: IpcMainInvokeEvent, path: string): Promise<string> {
-  port = new SerialPort({ path, baudRate: 115200 })
-  let status = 'ok'
+function openPort(_: IpcMainInvokeEvent, path: string): void {
+  port = new SerialPort({ path, baudRate: 115200 }, (error) => {
+    if (error) {
+      mainWindow.webContents.send('serial:status', 'error')
+      return
+    }
+    mainWindow.webContents.send('serial:status', 'ok')
+  })
+}
 
-  port.open(() => (status = 'error'))
+//------------------------------------------
+//------------------------------------------
 
-  return status
+function serialStart(): void {
+  port.write('start', (error) => {
+    if (error) console.log(error)
+  })
 }
 
 //------------------------------------------
