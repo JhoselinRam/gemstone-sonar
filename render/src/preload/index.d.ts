@@ -11,6 +11,7 @@ declare global {
           callback: (_: Electron.IpcRendererEvent, status: string) => void
         ) => Electron.IpcRenderer
         start: () => void
+        stop: () => void
       }
     }
   }

@@ -11,14 +11,28 @@ void setup(){
   Serial.begin(115200);
   button.begin();
   sonar.begin();
+
+  message = "stop";
 }
 
 void loop(){
   if(Serial.available() > 0){
-   // message = Serial.readString();
-    
-    //if(message == "end"){
+    message = Serial.readString();
+    message.trim();
+
+    if(message == "start"){
       digitalWrite(LED_BUILTIN, HIGH);
-    //}
+    }
+
+    if(message == "stop"){
+      digitalWrite(LED_BUILTIN, LOW);
+    }
   }
+
+  if(message == "start"){
+    Serial.write(buffer, 6);
+    buffer[2]++;
+  }
+
+  delay(50);
 }

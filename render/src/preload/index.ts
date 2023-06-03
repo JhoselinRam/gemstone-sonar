@@ -9,7 +9,8 @@ const api = {
     status: (
       callback: (_: Electron.IpcRendererEvent, status: string) => void
     ): Electron.IpcRenderer => ipcRenderer.on('serial:status', callback),
-    start: (): void => ipcRenderer.send('serial:start')
+    start: (): void => ipcRenderer.send('serial:start'),
+    stop: (): void => ipcRenderer.send('serial:stop')
   }
 }
 

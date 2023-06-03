@@ -23,6 +23,10 @@ function App(): JSX.Element {
     window.api.serial.start()
   }
 
+  function serialStop(): void {
+    window.api.serial.stop()
+  }
+
   useEffect(() => {
     savePortNames()
     window.api.serial.status(getSerialStatus)
@@ -52,6 +56,14 @@ function App(): JSX.Element {
         onClick={serialStart}
       >
         Start
+      </button>
+      <button
+        className="border px-1 my-2 border-gray-600 rounded-md disabled:text-gray-500 disabled:border-gray-300"
+        role="button"
+        disabled={disabled}
+        onClick={serialStop}
+      >
+        Stop
       </button>
       <ul className="w-1/3 grid grid-cols-3 gap-1">
         {serialPorts.map((port) => (

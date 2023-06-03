@@ -48,6 +48,7 @@ app.whenReady().then(() => {
   ipcMain.handle('serial:getPorts', getSerialPorts)
   ipcMain.on('serial:open', openPort)
   ipcMain.on('serial:start', serialStart)
+  ipcMain.on('serial:stop', serialStop)
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -97,17 +98,34 @@ function openPort(_: IpcMainInvokeEvent, path: string): void {
       mainWindow.webContents.send('serial:status', 'error')
       return
     }
+    port.on('data', readSerialData)
     mainWindow.webContents.send('serial:status', 'ok')
+  })
+}
+
+//------------------------------------------
+//------------- Serial Start ---------------
+
+function serialStart(): void {
+  port.write('start', (error) => {
+    if (error) console.log(error)
+  })
+}
+
+//------------------------------------------
+//------------- Serial Stop ----------------
+
+function serialStop(): void {
+  port.write('stop', (error) => {
+    if (error) console.log(error)
   })
 }
 
 //------------------------------------------
 //------------------------------------------
 
-function serialStart(): void {
-  port.write('start', (error) => {
-    if (error) console.log(error)
-  })
+function readSerialData(data: Buffer): void {
+  console.log(data.readInt8(2))
 }
 
 //------------------------------------------
