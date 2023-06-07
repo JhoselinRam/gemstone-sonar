@@ -1,10 +1,13 @@
 #include "libraries/gButton/src/gButton.h";
 #include "libraries/gSonar/src/HC_SR04.h";
 
+#define RENDER_ON 49
+#define RENDER_OFF 48
+
 uint8_t buffer[6] = {'$', '#', 0, 0, '&', '?'};
 gButton button(3);
 HC_SR04 sonar(6,7);
-String message;
+uint8_t message;
 
 void setup(){
   pinMode(LED_BUILTIN, OUTPUT);
@@ -12,24 +15,23 @@ void setup(){
   button.begin();
   sonar.begin();
 
-  message = "stop";
+  message = RENDER_OFF;
 }
 
 void loop(){
   if(Serial.available() > 0){
-    message = Serial.readString();
-    message.trim();
+    message = Serial.read();
 
-    if(message == "start"){
+    if(message == RENDER_ON){
       digitalWrite(LED_BUILTIN, HIGH);
     }
 
-    if(message == "stop"){
+    if(message == RENDER_OFF){
       digitalWrite(LED_BUILTIN, LOW);
     }
   }
 
-  if(message == "start"){
+  if(message == RENDER_ON){
     Serial.write(buffer, 6);
     buffer[2]++;
   }

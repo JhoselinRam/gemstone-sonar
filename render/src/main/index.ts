@@ -1,17 +1,14 @@
-import { app, shell, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { SerialPort } from 'serialport'
+import { serialServices } from './services/serial'
 
 //----------- Create Window ----------------
 
-let port: SerialPort
-let mainWindow: BrowserWindow
-
 // Create the browser window.
 function createWindow(): void {
-  mainWindow = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -22,6 +19,8 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  serialServices(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -45,11 +44,6 @@ function createWindow(): void {
 //------------- When Ready -----------------
 
 app.whenReady().then(() => {
-  ipcMain.handle('serial:getPorts', getSerialPorts)
-  ipcMain.on('serial:open', openPort)
-  ipcMain.on('serial:start', serialStart)
-  ipcMain.on('serial:stop', serialStop)
-
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -80,52 +74,4 @@ app.on('window-all-closed', () => {
   }
 })
 
-//------------------------------------------
-//----------- Get Serial Ports -------------
-
-async function getSerialPorts(): Promise<string[]> {
-  const pathInfo = await SerialPort.list()
-  const pathNames = pathInfo.map((port) => port.path)
-  return pathNames
-}
-
-//------------------------------------------
-//-------------- Open Port -----------------
-
-function openPort(_: IpcMainInvokeEvent, path: string): void {
-  port = new SerialPort({ path, baudRate: 115200 }, (error) => {
-    if (error) {
-      mainWindow.webContents.send('serial:status', 'error')
-      return
-    }
-    port.on('data', readSerialData)
-    mainWindow.webContents.send('serial:status', 'ok')
-  })
-}
-
-//------------------------------------------
-//------------- Serial Start ---------------
-
-function serialStart(): void {
-  port.write('start', (error) => {
-    if (error) console.log(error)
-  })
-}
-
-//------------------------------------------
-//------------- Serial Stop ----------------
-
-function serialStop(): void {
-  port.write('stop', (error) => {
-    if (error) console.log(error)
-  })
-}
-
-//------------------------------------------
-//------------------------------------------
-
-function readSerialData(data: Buffer): void {
-  console.log(data.readInt8(2))
-}
-
-//------------------------------------------
+//-----------------------------------------
