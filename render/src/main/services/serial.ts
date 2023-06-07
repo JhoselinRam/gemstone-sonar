@@ -2,6 +2,8 @@ import { BrowserWindow, IpcMainInvokeEvent, ipcMain } from 'electron'
 import { SerialPort } from 'serialport'
 
 export function serialServices(mainWindow: BrowserWindow): void {
+  const RENDER_ON = '1'
+  const RENDER_Off = '0'
   let port: SerialPort
 
   ipcMain.handle('serial:getPorts', getSerialPorts)
@@ -21,6 +23,8 @@ export function serialServices(mainWindow: BrowserWindow): void {
   //-------------- Open Port -----------------
 
   function openPort(_: IpcMainInvokeEvent, path: string): void {
+    if (port != null) port.close()
+
     port = new SerialPort({ path, baudRate: 115200 }, (error) => {
       if (error) {
         mainWindow.webContents.send('serial:status', 'error')
@@ -35,7 +39,7 @@ export function serialServices(mainWindow: BrowserWindow): void {
   //------------- Serial Start ---------------
 
   function serialStart(): void {
-    port.write('1', (error) => {
+    port.write(RENDER_ON, (error) => {
       if (error) console.log(error)
     })
   }
@@ -44,7 +48,7 @@ export function serialServices(mainWindow: BrowserWindow): void {
   //------------- Serial Stop ----------------
 
   function serialStop(): void {
-    port.write('0', (error) => {
+    port.write(RENDER_Off, (error) => {
       if (error) console.log(error)
     })
   }
@@ -55,6 +59,13 @@ export function serialServices(mainWindow: BrowserWindow): void {
   function readSerialData(data: Buffer): void {
     console.log(data.readInt8(2))
   }
+
+  //------------------------------------------
+  //------------- On close -------------------
+
+  mainWindow.on('close', () => {
+    if (port != null) port.close()
+  })
 
   //------------------------------------------
 }
