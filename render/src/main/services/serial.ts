@@ -64,7 +64,13 @@ export function serialServices(mainWindow: BrowserWindow): void {
   //------------- On close -------------------
 
   mainWindow.on('close', () => {
-    if (port != null) port.close()
+    if (port == null) return
+
+    port.write(RENDER_Off, (error) => {
+      if (error) console.log(error)
+
+      port.close()
+    })
   })
 
   //------------------------------------------
