@@ -1,15 +1,27 @@
 import { BrowserWindow, IpcMainInvokeEvent, ipcMain } from 'electron'
 import { SerialPort } from 'serialport'
+import { SendOptions } from './serial_types'
+
+//Same definitions as in Arduino sketch
+const definitions = {
+  enable: 'E',
+  delta: 'D',
+  auto: 'A',
+  angle: 'G',
+  start_0: '$',
+  start_1: '#',
+  end_0: '&',
+  end_1: '%',
+  true: '001',
+  false: '000'
+}
 
 export function serialServices(mainWindow: BrowserWindow): void {
-  const RENDER_ON = '1'
-  const RENDER_Off = '0'
   let port: SerialPort
 
   ipcMain.handle('serial:getPorts', getSerialPorts)
   ipcMain.on('serial:open', openPort)
-  ipcMain.on('serial:start', serialStart)
-  ipcMain.on('serial:stop', serialStop)
+  ipcMain.on('serial:send', serialSend)
 
   //----------- Get Serial Ports -------------
 
@@ -36,21 +48,22 @@ export function serialServices(mainWindow: BrowserWindow): void {
   }
 
   //------------------------------------------
-  //------------- Serial Start ---------------
+  //------------- Serial Send ----------------
 
-  function serialStart(): void {
-    port.write(RENDER_ON, (error) => {
-      if (error) console.log(error)
-    })
-  }
+  function serialSend(_: Electron.IpcMainEvent, options: SendOptions): void {
+    let payload = ''
+    const directive = definitions[options.directive]
 
-  //------------------------------------------
-  //------------- Serial Stop ----------------
-
-  function serialStop(): void {
-    port.write(RENDER_Off, (error) => {
-      if (error) console.log(error)
-    })
+    if (typeof options.payload === 'boolean')
+      payload = options.payload ? definitions.true : definitions.false
+    if (typeof options.payload === 'number') payload = `${clamp(options.payload, 0, 255)}`
+    console.log(payload)
+    port.write(
+      `${definitions.start_0}${definitions.start_1}${directive}${payload}${definitions.end_0}${definitions.end_1}`,
+      (error) => {
+        if (error) console.log(error)
+      }
+    )
   }
 
   //------------------------------------------
@@ -66,12 +79,24 @@ export function serialServices(mainWindow: BrowserWindow): void {
   mainWindow.on('close', () => {
     if (port == null) return
 
-    port.write(RENDER_Off, (error) => {
-      if (error) console.log(error)
+    const directive = definitions.enable
+    const payload = definitions.false
+    port.write(
+      `${definitions.start_0}${definitions.start_1}${directive}${payload}${definitions.end_0}${definitions.end_1}`,
+      (error) => {
+        if (error) console.log(error)
 
-      port.close()
-    })
+        port.close()
+      }
+    )
   })
+
+  //------------------------------------------
+  //------------------------------------------
+
+  function clamp(value: number, min: number, max: number): number {
+    return value < min ? min : value > max ? max : value
+  }
 
   //------------------------------------------
 }

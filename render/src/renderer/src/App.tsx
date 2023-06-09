@@ -20,11 +20,17 @@ function App(): JSX.Element {
   }
 
   function serialStart(): void {
-    window.api.serial.start()
+    window.api.serial.send({
+      directive: 'enable',
+      payload: true
+    })
   }
 
   function serialStop(): void {
-    window.api.serial.stop()
+    window.api.serial.send({
+      directive: 'enable',
+      payload: false
+    })
   }
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { SendOptions } from '../main/services/serial_types'
 
 declare global {
   interface Window {
@@ -10,8 +11,7 @@ declare global {
         status: (
           callback: (_: Electron.IpcRendererEvent, status: string) => void
         ) => Electron.IpcRenderer
-        start: () => void
-        stop: () => void
+        send: (options: SendOptions) => void
       }
     }
   }

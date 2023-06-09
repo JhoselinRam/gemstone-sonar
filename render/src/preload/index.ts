@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { SendOptions } from '../main/services/serial_types'
 
 // Custom APIs for renderer
 const api = {
@@ -9,8 +10,7 @@ const api = {
     status: (
       callback: (_: Electron.IpcRendererEvent, status: string) => void
     ): Electron.IpcRenderer => ipcRenderer.on('serial:status', callback),
-    start: (): void => ipcRenderer.send('serial:start'),
-    stop: (): void => ipcRenderer.send('serial:stop')
+    send: (options: SendOptions): void => ipcRenderer.send('serial:send', options)
   }
 }
 
