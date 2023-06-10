@@ -56,8 +56,12 @@ export function serialServices(mainWindow: BrowserWindow): void {
 
     if (typeof options.payload === 'boolean')
       payload = options.payload ? definitions.true : definitions.false
-    if (typeof options.payload === 'number') payload = `${clamp(options.payload, 0, 255)}`
-    console.log(payload)
+    if (typeof options.payload === 'number') {
+      payload = `${clamp(options.payload, 0, 255)}`
+      payload =
+        payload.length === 1 ? `00${payload}` : payload.length === 2 ? `0${payload}` : payload
+    }
+
     port.write(
       `${definitions.start_0}${definitions.start_1}${directive}${payload}${definitions.end_0}${definitions.end_1}`,
       (error) => {
@@ -70,7 +74,7 @@ export function serialServices(mainWindow: BrowserWindow): void {
   //----------- Read Serial Data -------------
 
   function readSerialData(data: Buffer): void {
-    console.log(data.readInt8(2))
+    console.log(data.readUInt8(0))
   }
 
   //------------------------------------------

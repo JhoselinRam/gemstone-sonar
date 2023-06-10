@@ -1,9 +1,11 @@
-import { MouseEvent, useEffect, useState } from 'react'
+import { ChangeEvent, MouseEvent, useEffect, useState } from 'react'
 
 function App(): JSX.Element {
   const [serialPorts, setSerialPorts] = useState<string[]>([])
   const [serialStatus, setSeriaStatus] = useState('')
   const [disabled, setDisabled] = useState(true)
+  const [delta, setDelta] = useState(25)
+  const [angle, setAngle] = useState(0)
 
   async function savePortNames(): Promise<void> {
     const names = await window.api.serial.getPorts()
@@ -30,6 +32,29 @@ function App(): JSX.Element {
     window.api.serial.send({
       directive: 'enable',
       payload: false
+    })
+  }
+
+  function serialAuto(e: ChangeEvent<HTMLInputElement>): void {
+    window.api.serial.send({
+      directive: 'auto',
+      payload: e.target.checked
+    })
+  }
+
+  function serialDelta(e: ChangeEvent<HTMLInputElement>): void {
+    setDelta(parseInt(e.target.value))
+    window.api.serial.send({
+      directive: 'delta',
+      payload: parseInt(e.target.value)
+    })
+  }
+
+  function serialAngle(e: ChangeEvent<HTMLInputElement>): void {
+    setAngle(parseInt(e.target.value))
+    window.api.serial.send({
+      directive: 'angle',
+      payload: parseInt(e.target.value)
     })
   }
 
@@ -71,6 +96,32 @@ function App(): JSX.Element {
       >
         Stop
       </button>
+      <label htmlFor="auto">Auto</label>
+      <input type="checkbox" name="auto" id="auto" onInput={serialAuto} disabled={disabled} />
+      <label htmlFor="delta">Delta {delta}</label>
+      <input
+        type="range"
+        name="delta"
+        id="delta"
+        min={0}
+        max={255}
+        step={1}
+        defaultValue={25}
+        onChange={serialDelta}
+        disabled={disabled}
+      />
+      <label htmlFor="angle">Angle {angle}</label>
+      <input
+        type="range"
+        name="angle"
+        id="angle"
+        min={0}
+        max={255}
+        step={1}
+        defaultValue={0}
+        onChange={serialAngle}
+        disabled={disabled}
+      />
       <ul className="w-1/3 grid grid-cols-3 gap-1">
         {serialPorts.map((port) => (
           <li key={port} onClick={openPort} className="hover:bg-red-400 cursor-pointer">
