@@ -98,8 +98,7 @@ void getMessage(){
 bool isInSync(){
   if(message[START_0] != SYNC_START_0 ||
   message[START_1] != SYNC_START_1 ||
-  message[END_0] != SYNC_END_0 ||
-  message[END_1] != SYNC_END_1) return false;
+  message[END_0] != SYNC_END_0) return false;
 
   return true;
 }
@@ -165,6 +164,8 @@ void sendData(){
 
   buffer[BUFFER_ANGLE] = round(floatMap(angle, 0, 180, 0, 255));
 
+  Serial.write(buffer, OUT_BUFFER_SIZE);
+
   delay(50);
 }
 
@@ -206,7 +207,6 @@ uint8_t getPayload(){
   int payload_2 = int(message[PAYLOAD + 2]) - ASCII_OFFSET;
   int payload = 100*payload_0 + 10*payload_1 + payload_2;
 
-  Serial.write(payload);
   return clamp(payload, 0, 255);
 }
 
