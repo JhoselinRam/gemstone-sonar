@@ -1,30 +1,36 @@
-import { useReducer, useState } from 'react'
-import { UseSerial, SerialReducer, SerialState, SerialData } from './useSerial_types'
-import reducer from './serial-reducer'
+import { useEffect, useState } from 'react'
+import { SerialData, SerialStatus } from './useSerial_Types'
 
-const initialState: SerialState = {
-  connected: false,
-  ready: false,
-  from: 0,
-  to: 0,
-  delta: 0,
-  angle: 0,
-  auto: false,
-  delta_0: 0,
-  delta_1: 0,
-  distance: 0,
-  enable: false
-}
+function useSerial(): void {
+  // Data received from the arduino
+  const [data, setData] = useState<SerialData>({ angle: 0, distance: 0 })
+  const [ports, setPorts] = useState<string[]>([])
+  const [status, setStatus] = useState<SerialStatus>('')
+  const [ready, setReady] = useState<boolean>(false)
 
-function useSerial(): UseSerial {
-  const [serial, dispatch] = useReducer<SerialReducer>(reducer, initialState)
-  const [data, setData] = useState<SerialData>({ angle: initialState.from, distance: 0 })
-
-  return {
-    serial,
-    data,
-    dispatch
+  //On data received
+  function updateData(_, newData: SerialData): void {
+    setData(newData)
   }
+
+  //On status received
+  function updateStatus(_, newStatus: SerialStatus): void {
+    setReady(false) //Always unset the ready state when the status change
+    setStatus(newStatus)
+  }
+
+  //Gets the serial port names available
+  async function updatePorts(): Promise<void> {
+    const newPorts = await window.api.serial.getPorts()
+    setPorts(newPorts)
+  }
+
+  //On first render
+  useEffect(() => {
+    updatePorts()
+    window.api.serial.data(updateData)
+    window.api.serial.status(updateStatus)
+  }, [])
 }
 
 export default useSerial
