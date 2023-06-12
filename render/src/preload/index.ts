@@ -1,16 +1,20 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { SendOptions } from '../main/services/serial_types'
+import { SerialDataCallback, SerialInitCallback, SerialStatusCallback } from './index_types'
 
 // Custom APIs for renderer
 const api = {
   serial: {
     getPorts: (): Promise<string[]> => ipcRenderer.invoke('serial:getPorts'),
     openPort: (port: string): void => ipcRenderer.send('serial:open', port),
-    status: (
-      callback: (_: Electron.IpcRendererEvent, status: string) => void
-    ): Electron.IpcRenderer => ipcRenderer.on('serial:status', callback),
-    send: (options: SendOptions): void => ipcRenderer.send('serial:send', options)
+    status: (callback: SerialStatusCallback): Electron.IpcRenderer =>
+      ipcRenderer.on('serial:status', callback),
+    send: (options: SendOptions): void => ipcRenderer.send('serial:send', options),
+    data: (callback: SerialDataCallback): Electron.IpcRenderer =>
+      ipcRenderer.on('serial:data', callback),
+    init: (callback: SerialInitCallback): Electron.IpcRenderer =>
+      ipcRenderer.on('serial:init', callback)
   }
 }
 

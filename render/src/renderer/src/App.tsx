@@ -6,6 +6,13 @@ function App(): JSX.Element {
   const [disabled, setDisabled] = useState(true)
   const [delta, setDelta] = useState(25)
   const [angle, setAngle] = useState(0)
+  const [from, setFrom] = useState(180)
+  const [to, setTo] = useState(0)
+  const [ready, setReady] = useState(false)
+  const [data, setData] = useState<{ distance: number; angle: number }>({
+    angle: 30,
+    distance: 0
+  })
 
   async function savePortNames(): Promise<void> {
     const names = await window.api.serial.getPorts()
@@ -21,17 +28,10 @@ function App(): JSX.Element {
     setSeriaStatus(status)
   }
 
-  function serialStart(): void {
+  function serialStart(e: ChangeEvent<HTMLInputElement>): void {
     window.api.serial.send({
       directive: 'enable',
-      payload: true
-    })
-  }
-
-  function serialStop(): void {
-    window.api.serial.send({
-      directive: 'enable',
-      payload: false
+      payload: e.target.checked
     })
   }
 
@@ -58,9 +58,39 @@ function App(): JSX.Element {
     })
   }
 
+  function serialFrom(e: ChangeEvent<HTMLInputElement>): void {
+    setFrom(parseInt(e.target.value))
+    window.api.serial.send({
+      directive: 'from',
+      payload: parseInt(e.target.value)
+    })
+  }
+
+  function serialTo(e: ChangeEvent<HTMLInputElement>): void {
+    setTo(parseInt(e.target.value))
+    window.api.serial.send({
+      directive: 'to',
+      payload: parseInt(e.target.value)
+    })
+  }
+
+  function getData(_, data: { angle: number; distance: number }): void {
+    console.dir(data)
+    setData({
+      angle: data.angle,
+      distance: data.distance
+    })
+  }
+
+  function getInitialState(_, state: unknown): void {
+    setReady(true)
+  }
+
   useEffect(() => {
     savePortNames()
     window.api.serial.status(getSerialStatus)
+    window.api.serial.data(getData)
+    window.api.serial.init(getInitialState)
   }, [])
 
   useEffect(() => {
@@ -70,6 +100,8 @@ function App(): JSX.Element {
 
   return (
     <div className="p-1">
+      <h2>Angle: {data.angle}</h2>
+      <h2>Distance: {data.distance}</h2>
       <div className="flex flex-row gap-2">
         <button
           className="border px-1 my-2 border-gray-600 rounded-md"
@@ -79,23 +111,10 @@ function App(): JSX.Element {
           Get Serial Ports
         </button>
         <p>{serialStatus}</p>
+        <p>{ready ? 'ready' : 'not yet'}</p>
       </div>
-      <button
-        className="border px-1 my-2 border-gray-600 rounded-md disabled:text-gray-500 disabled:border-gray-300"
-        role="button"
-        disabled={disabled}
-        onClick={serialStart}
-      >
-        Start
-      </button>
-      <button
-        className="border px-1 my-2 border-gray-600 rounded-md disabled:text-gray-500 disabled:border-gray-300"
-        role="button"
-        disabled={disabled}
-        onClick={serialStop}
-      >
-        Stop
-      </button>
+      <label htmlFor="start">Start</label>
+      <input type="checkbox" name="start" id="start" onChange={serialStart} disabled={disabled} />
       <label htmlFor="auto">Auto</label>
       <input type="checkbox" name="auto" id="auto" onInput={serialAuto} disabled={disabled} />
       <label htmlFor="delta">Delta {delta}</label>
@@ -120,6 +139,30 @@ function App(): JSX.Element {
         step={1}
         defaultValue={0}
         onChange={serialAngle}
+        disabled={disabled}
+      />
+      <label htmlFor="from">From {from}</label>
+      <input
+        type="range"
+        name="from"
+        id="from"
+        min={0}
+        max={180}
+        step={1}
+        defaultValue={0}
+        onChange={serialFrom}
+        disabled={disabled}
+      />
+      <label htmlFor="to">To {to}</label>
+      <input
+        type="range"
+        name="to"
+        id="to"
+        min={0}
+        max={180}
+        step={1}
+        defaultValue={0}
+        onChange={serialTo}
         disabled={disabled}
       />
       <ul className="w-1/3 grid grid-cols-3 gap-1">
