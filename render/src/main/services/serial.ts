@@ -220,7 +220,7 @@ export function serialServices(mainWindow: BrowserWindow): void {
   }
 
   //------------------------------------------
-  //-------------------------------------------
+  //------------------------------------------
 
   function floatMap(
     value: number,

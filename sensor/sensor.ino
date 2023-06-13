@@ -222,7 +222,10 @@ void directiveEnable(){
 //-------------------------------------------
 
 void directiveDelta(){
-  delta = floatMap(getPayload(), 0, 255, DELTA_MIN, DELTA_MAX) * abs(delta)/delta;
+  delta = floatMap(getPayload(), 0, 255, DELTA_MIN, DELTA_MAX);
+
+  if(delta != 0)
+    delta *= abs(delta)/delta;
 }
 
 //-------------------------------------------

@@ -3,6 +3,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { SendOptions } from '../main/services/serial_types'
 import { SerialDataCallback, SerialInitCallback, SerialStatusCallback } from './index_types'
 
+let dataListener: Electron.IpcRenderer
+
 // Custom APIs for renderer
 const api = {
   serial: {
@@ -11,8 +13,10 @@ const api = {
     status: (callback: SerialStatusCallback): Electron.IpcRenderer =>
       ipcRenderer.on('serial:status', callback),
     send: (options: SendOptions): void => ipcRenderer.send('serial:send', options),
-    data: (callback: SerialDataCallback): Electron.IpcRenderer =>
-      ipcRenderer.on('serial:data', callback),
+    data: (callback: SerialDataCallback): void => {
+      if (dataListener != null) dataListener.removeAllListeners('serial:data')
+      dataListener = ipcRenderer.on('serial:data', callback)
+    },
     init: (callback: SerialInitCallback): Electron.IpcRenderer =>
       ipcRenderer.on('serial:init', callback)
   }

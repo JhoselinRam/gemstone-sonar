@@ -11,7 +11,7 @@ declare global {
         openPort: (port: string) => void
         status: (callback: SerialStatusCallback) => Electron.IpcRenderer
         send: (options: SendOptions) => void
-        data: (callback: SerialDataCallback) => Electron.IpcRenderer
+        data: (callback: SerialDataCallback) => void
         init: (callback: SerialInitCallback) => Electron.IpcRenderer
       }
     }
