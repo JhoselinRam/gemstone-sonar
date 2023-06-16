@@ -1,0 +1,3 @@
+.shouldGlow:hover path{
+  filter: url(#glow);
+}
