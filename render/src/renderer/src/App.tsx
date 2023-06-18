@@ -5,8 +5,8 @@ function App(): JSX.Element {
   const [data, state, dispatch] = useSerial()
 
   return (
-    <div className="p-1 h-[100vh] bg-slate-700">
-      <Settings></Settings>
+    <div className="p-1 h-screen bg-slate-700">
+      <Settings state={state} dispatch={dispatch} />
     </div>
   )
 }

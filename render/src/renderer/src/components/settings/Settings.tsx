@@ -1,11 +1,19 @@
-import Button from '../button/Button'
-import Gear from '../svg_icons/gear/Gear'
+import { useState } from 'react'
+import Trigger from './resourses/trigger/Trigger'
+import { SettingsContext } from './Settings_context'
+import Backplate from './resourses/backplate/Backplate'
+import Panel from './resourses/panel/Panel'
+import { SettingsPops } from './Settings_types'
 
-function Settings(): JSX.Element {
+function Settings({ dispatch, state }: SettingsPops): JSX.Element {
+  const [open, setOpen] = useState(false)
+
   return (
-    <Button className="m-2">
-      <Gear fill="#242e3d" glowOnHover></Gear>
-    </Button>
+    <SettingsContext.Provider value={{ open, setOpen, dispatch, state }}>
+      <Trigger />
+      <Backplate />
+      <Panel />
+    </SettingsContext.Provider>
   )
 }
 

@@ -1,3 +1,7 @@
-.shouldGlow:hover path{
+.shouldGlow:hover path {
+  filter: url(#glow);
+}
+
+.isActive:active path {
   filter: url(#glow);
 }
