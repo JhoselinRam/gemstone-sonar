@@ -1,0 +1,7 @@
+.isActive:active path {
+  filter: url(#cancelGlow);
+}
+
+.shouldGlow:hover path {
+  filter: url(#cancelGlow);
+}

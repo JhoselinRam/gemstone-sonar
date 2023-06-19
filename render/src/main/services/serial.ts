@@ -161,7 +161,7 @@ export function serialServices(mainWindow: BrowserWindow): void {
         break
 
       case definitions.max_distance.charCodeAt(0):
-        initialState.distance = data.readUint8(definitions.distance)
+        initialState.maxDistance = data.readUint8(definitions.distance)
         stateCounter++
         break
     }

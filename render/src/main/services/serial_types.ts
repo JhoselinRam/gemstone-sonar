@@ -14,5 +14,5 @@ export interface InitialState {
   auto: boolean
   delta: number
   angle: number
-  distance: number
+  maxDistance: number
 }
