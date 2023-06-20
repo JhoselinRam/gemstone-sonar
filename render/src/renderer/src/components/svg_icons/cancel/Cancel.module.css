@@ -1,7 +1,7 @@
 .isActive:active path {
-  filter: url(#cancelGlow);
+  fill: rgb(179, 181, 184);
 }
 
 .shouldGlow:hover path {
-  filter: url(#cancelGlow);
+  fill: rgb(179, 181, 184);
 }

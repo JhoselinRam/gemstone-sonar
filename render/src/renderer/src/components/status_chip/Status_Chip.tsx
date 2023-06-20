@@ -1,4 +1,5 @@
 import Cancel from '../svg_icons/cancel/Cancel'
+import Check from '../svg_icons/check/Check'
 import { StatusChipProps } from './Status_Chip_types'
 
 function StatusChip({
@@ -18,7 +19,13 @@ function StatusChip({
       }}
     >
       <div className="p-0 m-0">{children}</div>
-      <p className="p-0 m-0">{enable ? '✓' : <Cancel size="1em" fill={textDisable} />}</p>
+      <p className="p-0 m-0">
+        {enable ? (
+          <Check size="1em" fill={textEnable} width={2} />
+        ) : (
+          <Cancel size="1em" fill={textDisable} />
+        )}
+      </p>
     </div>
   )
 }

@@ -23,13 +23,13 @@ function PortOptions({ form }: ChildOptionProps): JSX.Element {
   }
 
   return (
-    <fieldset className="flex flex-row gap-8 w-full border p-2 rounded-md border-gray-600">
+    <fieldset className="flex flex-row justify-between items-center w-full border p-2 rounded-md border-gray-600">
       <legend className="flex flex-row justify-between w-11/12 px-2">
         <p className="text-gray-500">Port</p>
         <div className="flex flex-row gap-3">
           <StatusChip
-            bgEnable="blue"
-            bgDisable="red"
+            bgEnable="#044591"
+            bgDisable="#800101"
             textDisable="white"
             textEnable="white"
             enable={!(state.status === 'error' || state.status === '')}
@@ -37,8 +37,8 @@ function PortOptions({ form }: ChildOptionProps): JSX.Element {
             connected
           </StatusChip>
           <StatusChip
-            bgEnable="blue"
-            bgDisable="red"
+            bgEnable="#044591"
+            bgDisable="#800101"
             textDisable="white"
             textEnable="white"
             enable={state.ready}
@@ -48,19 +48,30 @@ function PortOptions({ form }: ChildOptionProps): JSX.Element {
         </div>
         <p></p>
       </legend>
-      <div>
-        <select name="portSelect">
+      <div className="flex flex-row gap-2">
+        <select
+          name="portSelect"
+          className="border border-transparent rounded-md bg-[#333842] text-gray-200 hover:border-gray-400 focus:border-gray-400"
+        >
           {state.ports.names.map((port) => (
             <option value={port} key={port}>
               {port}
             </option>
           ))}
         </select>
-        <button type="button" onClick={connectPort}>
+        <button
+          type="button"
+          onClick={connectPort}
+          className="border border-gray-600 rounded-md py-0 px-2 bg-[#333842] text-gray-200 hover:border-gray-400 focus:border-gray-400 active:bg-[#505255]"
+        >
           connect
         </button>
       </div>
-      <button type="button" onClick={updatePorts}>
+      <button
+        type="button"
+        onClick={updatePorts}
+        className="border border-gray-600 rounded-md py-0 px-2 bg-[#333842] text-gray-200 hover:border-gray-400 focus:border-gray-400 active:bg-[#505255]"
+      >
         update
       </button>
     </fieldset>

@@ -2,6 +2,8 @@ import { FocusEvent, KeyboardEvent, useContext, useEffect } from 'react'
 import { ChildOptionProps } from '../../Options_types'
 import { SettingsContext } from '@renderer/components/settings/Settings_context'
 import { ControledInputProps, NumberInputProps } from './Data_types'
+import { ReducerActionType } from '@renderer/hooks/useSerial/resourses/reducer_Types'
+import './Data.css'
 
 function DataOptions({ form }: ChildOptionProps): JSX.Element {
   const { state, dispatch } = useContext(SettingsContext)
@@ -36,6 +38,8 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
       type,
       payload: newValue
     })
+
+    input.blur()
   }
 
   function setNumberInput({ type, min, max, isFloat = false, name }: NumberInputProps): void {
@@ -64,11 +68,25 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
     ;(e.target as HTMLInputElement).select()
   }
 
+  function enterCheckbox(e: KeyboardEvent): void {
+    if (e.key !== 'Enter' && e.key !== 'Intro') return
+
+    const input = e.target as HTMLInputElement
+    const current = input.checked
+    const type = input.name
+
+    dispatch({
+      type: type as ReducerActionType,
+      payload: !current
+    })
+  }
+
   return (
-    <fieldset className="border">
-      <legend>Data</legend>
+    <fieldset className="border p-2 rounded-md border-gray-600 flex flex-col gap-3">
+      <legend className="text-gray-500 px-2">Data</legend>
+
       <div className="flex flex-row gap-6">
-        <div>
+        <div className="flex flex-row gap-1">
           <label htmlFor="enable">Enable</label>
           <input
             type="checkbox"
@@ -77,9 +95,11 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             checked={state.enable}
             onChange={(): void => setControledInput({ type: 'enable', isBoolean: true })}
             disabled={!state.ready}
+            className="focus:outline focus:outline-1 focus:outline-offset-1"
+            onKeyDown={enterCheckbox}
           />
         </div>
-        <div>
+        <div className="flex flex-row gap-1">
           <label htmlFor="auto">Auto</label>
           <input
             type="checkbox"
@@ -88,11 +108,16 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             checked={state.auto}
             onChange={(): void => setControledInput({ type: 'auto', isBoolean: true })}
             disabled={!state.ready}
+            className="focus:outline focus:outline-1 focus:outline-offset-1"
+            onKeyDown={enterCheckbox}
           />
         </div>
       </div>
-      <div>
-        <label htmlFor="from">From</label>
+
+      <div className="degreTable">
+        <label className="justify-self-end" htmlFor="from">
+          From:
+        </label>
         <input
           type="number"
           name="from"
@@ -102,10 +127,12 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
           onBlur={(): void => setNumberInput({ type: 'from', min: 0, max: state.to })}
           onKeyDown={enterNumberInput}
           onFocus={selectOnFocus}
+          className="border border-transparent rounded-md bg-[#333842] text-gray-200 pl-2 hover:border-gray-400 disabled:border-none disabled:bg-[#59595b]"
         />
-      </div>
-      <div>
-        <label htmlFor="to">To</label>
+        <p>deg</p>
+        <label className="justify-self-end" htmlFor="to">
+          To:
+        </label>
         <input
           type="number"
           name="to"
@@ -115,12 +142,18 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
           onBlur={(): void => setNumberInput({ type: 'to', min: state.from, max: 180 })}
           onKeyDown={enterNumberInput}
           onFocus={selectOnFocus}
+          className="border border-transparent rounded-md bg-[#333842] text-gray-200 pl-2 hover:border-gray-400 disabled:border-none disabled:bg-[#59595b]"
         />
+        <p>deg</p>
       </div>
-      <fieldset className="border" disabled={!(state.ready && state.auto)}>
-        <legend>Auto</legend>
-        <div>
-          <label htmlFor="delta">Speed</label>
+
+      <fieldset
+        className="border p-2 rounded-md border-gray-600"
+        disabled={!(state.ready && state.auto)}
+      >
+        <legend className="text-gray-500 px-2">Auto</legend>
+        <div className="flex flex-row gap-1">
+          <label htmlFor="delta">Speed:</label>
           <input
             type="range"
             name="delta"
@@ -130,14 +163,18 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             step={0.5}
             value={state.delta}
             onInput={(): void => setControledInput({ type: 'delta', isFloat: true })}
+            className="focus:outline focus:outline-1 rounded-md"
           />
         </div>
       </fieldset>
 
-      <fieldset className="border" disabled={!(state.ready && !state.auto)}>
-        <legend>Manual</legend>
-        <div>
-          <label htmlFor="manualAngle">Angle</label>
+      <fieldset
+        className="border p-2 rounded-md border-gray-600"
+        disabled={!(state.ready && !state.auto)}
+      >
+        <legend className="text-gray-500 px-2">Manual</legend>
+        <div className="flex flex-row gap-1">
+          <label htmlFor="manualAngle">Angle:</label>
           <input
             type="range"
             name="manualAngle"
@@ -147,6 +184,7 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             step={1}
             value={state.manualAngle}
             onInput={(): void => setControledInput({ type: 'manualAngle', isFloat: true })}
+            className="focus:outline focus:outline-1 rounded-md"
           />
           <input
             type="number"
@@ -162,14 +200,15 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             }
             onKeyDown={enterNumberInput}
             onFocus={selectOnFocus}
+            className="w-[80px] border border-transparent rounded-md bg-[#333842] text-gray-200 pl-2 hover:border-gray-400 disabled:border-none disabled:bg-[#59595b]"
           />
         </div>
       </fieldset>
 
-      <fieldset className="border" disabled={!state.ready}>
-        <legend>Distance</legend>
-        <div>
-          <label htmlFor="maxDistance">Max Distance</label>
+      <fieldset className="border p-2 rounded-md border-gray-600" disabled={!state.ready}>
+        <legend className="text-gray-500 px-2">Distance</legend>
+        <div className="flex flex-row gap-1">
+          <label htmlFor="maxDistance">Max</label>
           <input
             type="range"
             name="maxDistance"
@@ -179,6 +218,7 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             step={1}
             value={state.maxDistance}
             onInput={(): void => setControledInput({ type: 'maxDistance' })}
+            className="focus:outline focus:outline-1 rounded-md"
           />
           <input
             type="number"
@@ -188,7 +228,9 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             }
             onKeyDown={enterNumberInput}
             onFocus={selectOnFocus}
+            className="w-[70px] border border-transparent rounded-md bg-[#333842] text-gray-200 pl-2 hover:border-gray-400 disabled:border-none disabled:bg-[#59595b]"
           />
+          <p>cm</p>
         </div>
       </fieldset>
     </fieldset>

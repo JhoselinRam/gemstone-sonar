@@ -7,12 +7,22 @@ import Cancel from '@renderer/components/svg_icons/cancel/Cancel'
 function Panel(): JSX.Element {
   const { open, setOpen } = useContext(SettingsContext)
   const panelElement = useRef<HTMLDivElement | null>(null)
+  const headerElement = useRef<HTMLHeadElement | null>(null)
 
   useEffect(() => {
     if (panelElement.current == null) return
+    if (headerElement.current == null) return
 
     panelElement.current.style.transform = open ? 'scale(1, 1)' : 'scale(0, 1)'
-    if (open) panelElement.current.focus()
+    if (open) {
+      panelElement.current.focus()
+
+      headerElement.current.style.transition = 'opacity 0.1s ease-in-out 0.1s'
+      headerElement.current.style.opacity = '1'
+      return
+    }
+    headerElement.current.style.transition = 'none'
+    headerElement.current.style.opacity = '0'
   }, [open])
 
   function close(): void {
@@ -31,7 +41,7 @@ function Panel(): JSX.Element {
       onKeyDown={onEsc}
       tabIndex={0}
     >
-      <header className="flex flex-row justify-between mb-3">
+      <header className="flex flex-row justify-between mb-3" ref={headerElement}>
         <p></p>
         <h1>Settings</h1>
         <button type="button" onClick={close} className="closeButton">

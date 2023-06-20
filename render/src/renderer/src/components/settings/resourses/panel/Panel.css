@@ -4,5 +4,5 @@
 }
 
 .closeButton:focus path{
-  filter: url(#cancelGlow)
+  fill: rgb(179, 181, 184);
 }

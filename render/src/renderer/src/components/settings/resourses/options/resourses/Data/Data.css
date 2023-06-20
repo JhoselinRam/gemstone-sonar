@@ -1,0 +1,6 @@
+.degreTable{
+  display:  grid;
+  grid-template-columns: max-content 80px auto;
+  column-gap: 0.5em;
+  row-gap: 0.25em;
+}
