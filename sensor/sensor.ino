@@ -271,7 +271,11 @@ void sendData(){
   if(!enable) return;
   if(automatic) autoMove();
 
+  float data = sonar.filterRead(UNIT_DISTANCE_CM);
+  data = clamp(data, 0, maxDistance);
+
   buffer[BUFFER_ANGLE] = round(floatMap(angle, minAngle, maxAngle, 0, 255));
+  buffer[BUFFER_DISTANCE] = round(floatMap(data, 0, maxDistance, 0, 255));
 
   Serial.write(buffer, OUT_BUFFER_SIZE);
 
