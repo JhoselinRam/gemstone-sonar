@@ -1,8 +1,20 @@
+import { useEffect } from 'react'
 import { InterfaceProps } from './Interface_types'
 
 const margin = 10
 
 function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): JSX.Element {
+  let observer: ResizeObserver
+  const ratio =
+    Math.abs(Math.cos((from * Math.PI) / 180)) + Math.abs(Math.cos((to * Math.PI) / 180))
+
+  useEffect(() => {
+    return () => {
+      if (observer == null) return
+      observer.disconnect()
+    }
+  })
+
   function draw(context: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight)
     arch(context, canvas)
@@ -14,36 +26,55 @@ function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): 
     const radius = canvas.clientHeight - 2 * margin
     const angleStart = from - Math.PI
     const angleEnd = to - Math.PI
-
-    context.beginPath()
-    context.ellipse(x, y, radius, radius, 0, angleStart, angleEnd)
-    context.stroke()
-
-    context.beginPath()
-    context.ellipse(x, y, 50, 50, 0, 0, 2 * Math.PI)
-    context.stroke()
   }
 
   function getContext(element: HTMLCanvasElement): void {
     if (element == null) return
     const context = element.getContext('2d')!
-    const width = element.clientWidth
-    const height = element.clientHeight
     const dpi = window.devicePixelRatio
 
-    element.width = width * dpi
-    element.height = height * dpi
-    element.style.width = `${width}px`
-    element.style.height = `${height}px`
+    setAspectRatio(element.parentElement! as HTMLDivElement)
 
     context.scale(dpi, dpi)
 
     draw(context, element)
   }
 
+  function onResize(entries: ResizeObserverEntry[]): void {
+    entries.forEach((entrie) => setAspectRatio(entrie.target as HTMLDivElement))
+  }
+
+  function setAspectRatio(container: HTMLDivElement): void {
+    const canvas = container.getElementsByTagName('canvas')[0]
+    const containerRatio = (container.clientWidth - margin) / (container.clientHeight - margin)
+
+    if (containerRatio > ratio) {
+      canvas.style.width = 'auto'
+      canvas.style.height = '100%'
+    } else {
+      canvas.style.height = 'auto'
+      canvas.style.width = '100%'
+    }
+  }
+
+  function setObserver(element: HTMLDivElement): void {
+    if (element == null) return
+
+    observer = new ResizeObserver(onResize)
+    observer.disconnect()
+    observer.observe(element)
+  }
+
   return (
-    <div className="bg-[#222b3b] w-full flex-grow">
-      <canvas className="w-full h-full" ref={getContext}></canvas>
+    <div
+      className="bg-[#222b3b] w-full max-h-screen flex-grow flex items-center justify-center"
+      ref={setObserver}
+    >
+      <canvas
+        className="border border-red-700 w-full max-h-full"
+        ref={getContext}
+        style={{ aspectRatio: ratio }}
+      ></canvas>
     </div>
   )
 }

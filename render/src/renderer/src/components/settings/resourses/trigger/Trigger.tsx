@@ -12,7 +12,7 @@ function Trigger(): JSX.Element {
 
   return (
     <>
-      <button className="m-2 outline-none" type="button" onClick={toggle}>
+      <button className="m-2 outline-none self-start" type="button" onClick={toggle}>
         <GearIcon size="2rem" glowOnHover fill="#232d3b"></GearIcon>
       </button>
     </>

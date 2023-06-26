@@ -1,6 +1,6 @@
 @tailwind base;
 
-*::-webkit-scrollbar{
+*::-webkit-scrollbar {
   width: 8px;
 }
 
@@ -9,7 +9,7 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #6f7885
+  background-color: #6f7885;
 }
 
 @tailwind components;
@@ -17,4 +17,8 @@
 
 * {
   outline: none;
+}
+
+#root {
+  max-height: 100vh;
 }

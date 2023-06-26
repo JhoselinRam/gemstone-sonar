@@ -16,7 +16,7 @@ function App(): JSX.Element {
   }, [data])
 
   return (
-    <div className="p-1 h-screen bg-slate-700 flex flex-col">
+    <div className="p-1 h-screen max-h-screen bg-slate-700 flex flex-col overflow-scroll">
       <Settings state={state} dispatch={dispatch} />
       <div className="flex-grow flex flex-col gap-6 p-3">
         <Interface
