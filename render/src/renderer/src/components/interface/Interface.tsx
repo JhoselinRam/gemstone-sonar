@@ -1,21 +1,33 @@
 import { useEffect, useRef } from 'react'
-import { InterfaceProps } from './Interface_types'
+import { Datapoint, InterfaceProps } from './Interface_types'
+import { floatMap } from '@renderer/hooks/useSerial/resourses/reducer'
 
 function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): JSX.Element {
   const context = useRef<CanvasRenderingContext2D | null>(null)
   let observer: ResizeObserver
   const shadow = useRef<number[]>([])
+  const data = useRef<Datapoint[]>([])
   const ratio =
     Math.abs(Math.cos((from * Math.PI) / 180)) + Math.abs(Math.cos((to * Math.PI) / 180))
   const margin = 10
   const green = '#4e8c0e'
   const maxShadow = 35
+  const maxData = 60
+  const minDataSize = 2
+  const maxDataSize = 5
 
   useEffect(() => {
-    if (angle === shadow.current[shadow.current.length - 1]) return
-
+    //Add the new angle to the shadow array
     shadow.current.push(angle)
     if (shadow.current.length > maxShadow) shadow.current = shadow.current.slice(1)
+
+    //Add the new distance to the data array
+    data.current.push({
+      distance,
+      angle,
+      size: minDataSize + (maxDataSize - minDataSize) * Math.random()
+    })
+    if (data.current.length > maxData) data.current = data.current.slice(1)
 
     return () => {
       if (observer == null) return
@@ -26,11 +38,6 @@ function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): 
   function draw(context: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     if (from === to) return
 
-    context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight)
-    arch(context, canvas)
-  }
-
-  function arch(context: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     const offset = 3 * margin
     const x = canvas.clientWidth / 2
     const y = canvas.clientHeight - offset
@@ -42,6 +49,7 @@ function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): 
     const archStartY = radius * Math.sin(angleStart)
     const archEndY = radius * Math.sin(angleEnd)
 
+    context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight)
     context.save()
     context.translate(x, y)
     context.strokeStyle = green
@@ -155,6 +163,32 @@ function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): 
       context.lineTo(endX, endY)
       context.fill()
     }
+
+    //Data
+    const maxDataOpacity = 0.7
+    const replicas = 15
+    context.fillStyle = green //'#edf7e4'
+    context.shadowBlur = 0
+    data.current.forEach((point, index) => {
+      if (point.distance === 255) return
+      const pointRadius = floatMap(point.distance, 0, 255, 0, radius)
+      const pointAngle = ((point.angle - 180) * Math.PI) / 180
+      const pointX = pointRadius * Math.cos(pointAngle)
+      const pointY = pointRadius * Math.sin(pointAngle)
+      const pointOpacity = (maxDataOpacity * index) / (maxData - 1)
+
+      for (let i = 0; i < replicas; i++) {
+        context.globalAlpha = pointOpacity / replicas
+        context.beginPath()
+        context.arc(pointX, pointY, floatMap(i, 0, replicas - 1, point.size * 3, 1), 0, 2 * Math.PI)
+        context.fill()
+      }
+
+      //context.globalAlpha = pointOpacity
+      //context.beginPath()
+      //context.arc(pointX, pointY, point.size, 0, 2 * Math.PI)
+      //context.fill()
+    })
 
     context.restore()
   }
