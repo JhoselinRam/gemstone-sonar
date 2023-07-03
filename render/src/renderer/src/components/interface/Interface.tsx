@@ -1,16 +1,22 @@
 import { useEffect, useRef } from 'react'
 import { InterfaceProps } from './Interface_types'
 
-const margin = 10
-const green = '#4e8c0e'
-
 function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): JSX.Element {
   const context = useRef<CanvasRenderingContext2D | null>(null)
   let observer: ResizeObserver
+  const shadow = useRef<number[]>([])
   const ratio =
     Math.abs(Math.cos((from * Math.PI) / 180)) + Math.abs(Math.cos((to * Math.PI) / 180))
+  const margin = 10
+  const green = '#4e8c0e'
+  const maxShadow = 35
 
   useEffect(() => {
+    if (angle === shadow.current[shadow.current.length - 1]) return
+
+    shadow.current.push(angle)
+    if (shadow.current.length > maxShadow) shadow.current = shadow.current.slice(1)
+
     return () => {
       if (observer == null) return
       observer.disconnect()
@@ -25,7 +31,7 @@ function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): 
   }
 
   function arch(context: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
-    const offset = 2 * margin
+    const offset = 3 * margin
     const x = canvas.clientWidth / 2
     const y = canvas.clientHeight - offset
     const radius = canvas.clientHeight - 2 * offset
@@ -62,30 +68,52 @@ function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): 
     //Radial Grid
     const segments = 5
     const radialDelta = radius / segments
-    context.globalAlpha = 0.4
+    context.textBaseline = 'top'
+    context.textAlign = 'end'
+    context.fillStyle = green
     context.setLineDash([1, 3])
-    for (let i = 1; i < segments; i++) {
+    for (let i = 0; i <= segments; i++) {
+      //Line
+      context.globalAlpha = 0.4
       context.beginPath()
       context.arc(0, 0, radialDelta * i, angleStart, angleEnd)
       context.stroke()
+
+      //Text
+      const text = (((i * radialDelta) / radius) * maxDistance).toFixed(1)
+      const textX = i * radialDelta * Math.cos(angleStart) - margin
+      const textY = i * radialDelta * Math.sin(angleStart) + margin
+      context.globalAlpha = 1
+      context.fillText(text, textX, textY)
     }
 
     //Angle grid
     const angleDelta = (10 * Math.PI) / 180
-    let activeAngle = angleStart + angleDelta
-    context.globalAlpha = 0.3
+    const initialAngle = (Math.floor((angleStart * 180) / Math.PI / 10) + 1) * 10
+    let activeAngle = (initialAngle * Math.PI) / 180
     context.setLineDash([1, 3])
-    context.beginPath()
+    context.textAlign = 'center'
     while (activeAngle < angleEnd) {
       const gridX = radius * Math.cos(activeAngle)
       const gridY = radius * Math.sin(activeAngle)
 
+      //Line
+      context.globalAlpha = 0.3
+      context.beginPath()
       context.moveTo(0, 0)
       context.lineTo(gridX, gridY)
+      context.stroke()
+
+      //Text
+      const textX = (radius + 2 * margin) * Math.cos(activeAngle)
+      const textY = (radius + 2 * margin) * Math.sin(activeAngle)
+      const degAngle = (activeAngle * 180) / Math.PI + 180
+      const text = `${degAngle.toFixed(0)}°`
+      context.globalAlpha = 1
+      context.fillText(text, textX, textY)
 
       activeAngle += angleDelta
     }
-    context.stroke()
 
     //Indicator
     const indicatorAngle = ((angle - 180) * Math.PI) / 180
@@ -104,6 +132,29 @@ function Interface({ angle, distance, from, maxDistance, to }: InterfaceProps): 
     context.moveTo(0, 0)
     context.lineTo(indicatorX, indicatorY)
     context.stroke()
+
+    //Indicator shadow
+    const shadowLenght = shadow.current.length
+    const maxShadowOpacity = 0.3
+    context.shadowBlur = 0
+    for (let i = 0; i < shadowLenght - 1; i++) {
+      const shadowOpacity = (maxShadowOpacity * i) / (shadowLenght - 1)
+      const shadowStart = ((shadow.current[i] - 180) * Math.PI) / 180
+      const shadowEnd = ((shadow.current[i + 1] - 180) * Math.PI) / 180
+      const startX = Math.round(radius * Math.cos(shadowStart))
+      const startY = Math.round(radius * Math.sin(shadowStart))
+      const endX = Math.round(radius * Math.cos(shadowEnd))
+      const endY = Math.round(radius * Math.sin(shadowEnd))
+
+      context.fillStyle = green
+      context.globalAlpha = shadowOpacity
+      context.beginPath()
+      context.arc(0, 0, radius, shadowStart, shadowEnd, shadowEnd < shadowStart)
+      context.moveTo(startX, startY)
+      context.lineTo(0, 0)
+      context.lineTo(endX, endY)
+      context.fill()
+    }
 
     context.restore()
   }

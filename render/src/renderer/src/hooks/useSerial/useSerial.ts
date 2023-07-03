@@ -58,10 +58,12 @@ function useSerial(): UseSerial {
 
   //Gets the arduino initial state
   function initSatate(_, initialState: ReducerState): void {
+    const payload = initialState as ReducerState
     setReady(true)
+    setData({ angle: payload.from, distance: payload.maxDistance })
     dispatch({
       type: 'init',
-      payload: initialState
+      payload
     })
   }
 

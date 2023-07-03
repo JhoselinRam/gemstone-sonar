@@ -160,7 +160,7 @@ function DataOptions({ form }: ChildOptionProps): JSX.Element {
             id="delta"
             min={state.delta_0}
             max={state.delta_1}
-            step={0.5}
+            step={0.1}
             value={state.delta}
             onInput={(): void => setControledInput({ type: 'delta', isFloat: true })}
             className="focus:outline focus:outline-1 rounded-md"
