@@ -51,7 +51,7 @@
 
 
 uint8_t buffer[OUT_BUFFER_SIZE] = {SYNC_START_0, SYNC_START_1, 0, 0, 0, SYNC_END_0, SYNC_END_1};
-HC_SR04 sonar(6,7);
+HC_SR04 sonar(7,6);
 Servo servo;
 uint8_t message[IN_BUFFER_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
 bool enable;
