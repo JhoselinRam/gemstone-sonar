@@ -47,7 +47,7 @@ If you prefer, you can compile and install the application. Run one of the follo
     npm run build:mac
     npm run build:linux
 
-Check the generated `out` directory and proceed with the installation.
+Check the generated `dist` directory and proceed with the installation.
 
 Ones the application is running, open the settings and select the Arduino serial port, click on `connect` and ones the `connected` and `ready` indicators turn blue you can start reading the sensor.
 

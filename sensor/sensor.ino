@@ -43,7 +43,7 @@
 #define ANGLE_MAX 150
 #define ASCII_OFFSET 48
 #define DISTANCE_MAX 50 // 50cm
-#define INIT_DELAY   50 // 50ms
+#define INIT_DELAY   0 // 50ms
 
 
 

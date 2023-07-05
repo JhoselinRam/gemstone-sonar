@@ -91,9 +91,9 @@ export function serialServices(mainWindow: BrowserWindow): void {
 
   function readSerialData(data: Buffer): void {
     if (!isInSync(data)) {
-      port.flush((error) => {
-        if (error) console.log(error)
-      })
+      // port.flush((error) => {
+      //   if (error) console.log(error)
+      // })
 
       return
     }
@@ -109,36 +109,43 @@ export function serialServices(mainWindow: BrowserWindow): void {
 
       //This cases are only relevant when the port initialize
       case definitions.from.charCodeAt(0):
+        //console.log('from')
         initialState.from = data.readUint8(definitions.distance)
         stateCounter++
         break
 
       case definitions.to.charCodeAt(0):
+        //console.log('to')
         initialState.to = data.readUint8(definitions.distance)
         stateCounter++
         break
 
       case definitions.delta_0.charCodeAt(0):
+        //console.log('delta_0')
         initialState.delta_0 = data.readUint8(definitions.distance)
         stateCounter++
         break
 
       case definitions.delta_1.charCodeAt(0):
+        //console.log('delta_1')
         initialState.delta_1 = data.readUint8(definitions.distance)
         stateCounter++
         break
 
       case definitions.enable.charCodeAt(0):
+        //console.log('enable')
         initialState.enable = data.readUint8(definitions.distance) === 1 ? true : false
         stateCounter++
         break
 
       case definitions.auto.charCodeAt(0):
+        //console.log('auto')
         initialState.auto = data.readUint8(definitions.distance) === 1 ? true : false
         stateCounter++
         break
 
       case definitions.delta.charCodeAt(0):
+        //console.log('delta')
         initialState.delta = floatMap(
           data.readUint8(definitions.distance),
           0,
@@ -150,6 +157,7 @@ export function serialServices(mainWindow: BrowserWindow): void {
         break
 
       case definitions.angle.charCodeAt(0):
+        //console.log('angle')
         initialState.angle = floatMap(
           data.readUint8(definitions.distance),
           0,
@@ -161,6 +169,7 @@ export function serialServices(mainWindow: BrowserWindow): void {
         break
 
       case definitions.max_distance.charCodeAt(0):
+        //console.log('max_distance')
         initialState.maxDistance = data.readUint8(definitions.distance)
         stateCounter++
         break
@@ -175,11 +184,11 @@ export function serialServices(mainWindow: BrowserWindow): void {
 
   function isInSync(data: Buffer): boolean {
     if (
+      data.length !== definitions.buffer_size ||
       data.readUint8(definitions.start_0) !== definitions.sync_start_0.charCodeAt(0) ||
       data.readUint8(definitions.start_1) !== definitions.sync_start_1.charCodeAt(0) ||
       data.readUint8(definitions.end_0) !== definitions.sync_end_0.charCodeAt(0) ||
-      data.readUint8(definitions.end_1) !== definitions.sync_end_1.charCodeAt(0) ||
-      data.length !== definitions.buffer_size
+      data.readUint8(definitions.end_1) !== definitions.sync_end_1.charCodeAt(0)
     )
       return false
 
